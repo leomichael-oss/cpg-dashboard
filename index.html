@@ -100,6 +100,12 @@
       }
 
       button:hover { transform: translateY(-2px); }
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
 
       .love { background: linear-gradient(135deg, #ffc46b, var(--accent)); }
       .like { background: linear-gradient(135deg, #9cf4ff, var(--accent-2)); }
@@ -178,6 +184,10 @@
         border: 1px solid #2a3c56;
       }
 
+      .hidden {
+        display: none;
+      }
+
       @media (max-width: 640px) {
         .header { flex-direction: column; align-items: flex-start; }
         .status { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -208,7 +218,7 @@
           <button class="hate" data-rating="hate">HATE</button>
         </div>
         <div class="controls">
-          <button class="never full-width" data-rating="never">NEVER HEARD OF</button>
+          <button class="never full-width" data-rating="never">NOT FAMILIAR</button>
         </div>
 
         <div class="status">
@@ -219,7 +229,8 @@
         <div class="results" id="results"></div>
 
         <div class="footer">
-          <button id="finishBtn" class="ghost">Show Me My Recommendations</button>
+          <button id="backBtn" class="ghost">Back</button>
+          <button id="finishBtn" class="ghost hidden">Show Me My Recommendations</button>
           <button id="resetBtn" class="ghost">Start Over</button>
         </div>
       </div>
@@ -227,154 +238,155 @@
 
     <script>
       const MASTER_BANDS = [
-        { name: "The Beatles", tags: ["rock", "60s", "classic"] },
-        { name: "The Rolling Stones", tags: ["rock", "60s", "classic"] },
-        { name: "The Beach Boys", tags: ["pop", "60s", "harmonies"] },
-        { name: "Bob Dylan", tags: ["folk", "60s", "songwriter"] },
-        { name: "Jimi Hendrix", tags: ["rock", "psychedelic", "guitar"] },
-        { name: "Aretha Franklin", tags: ["soul", "classic", "vocals"] },
-        { name: "Stevie Wonder", tags: ["soul", "pop", "classic"] },
-        { name: "Marvin Gaye", tags: ["soul", "classic", "smooth"] },
-        { name: "The Supremes", tags: ["motown", "60s", "pop"] },
-        { name: "Led Zeppelin", tags: ["rock", "70s", "heavy"] },
-        { name: "Pink Floyd", tags: ["rock", "progressive", "70s"] },
-        { name: "Fleetwood Mac", tags: ["rock", "70s", "pop"] },
-        { name: "Queen", tags: ["rock", "arena", "classic"] },
-        { name: "David Bowie", tags: ["rock", "art", "70s"] },
-        { name: "The Clash", tags: ["punk", "70s", "rock"] },
-        { name: "Sex Pistols", tags: ["punk", "70s", "raw"] },
-        { name: "Talking Heads", tags: ["art rock", "new wave", "funk"] },
-        { name: "Joy Division", tags: ["post-punk", "dark", "classic"] },
-        { name: "The Cure", tags: ["goth", "post-punk", "new wave"] },
-        { name: "Depeche Mode", tags: ["synth", "new wave", "dark"] },
-        { name: "Prince", tags: ["pop", "funk", "80s"] },
-        { name: "Michael Jackson", tags: ["pop", "80s", "dance"] },
-        { name: "Madonna", tags: ["pop", "80s", "dance"] },
-        { name: "Whitney Houston", tags: ["pop", "80s", "vocals"] },
-        { name: "U2", tags: ["rock", "80s", "arena"] },
-        { name: "The Smiths", tags: ["indie", "jangle", "80s"] },
-        { name: "New Order", tags: ["synth", "dance", "80s"] },
-        { name: "R.E.M.", tags: ["rock", "80s", "alternative"] },
-        { name: "The Police", tags: ["rock", "new wave", "80s"] },
-        { name: "Guns N' Roses", tags: ["rock", "hard", "80s"] },
-        { name: "Metallica", tags: ["metal", "80s", "thrash"] },
-        { name: "Nirvana", tags: ["grunge", "90s", "rock"] },
-        { name: "Pearl Jam", tags: ["grunge", "90s", "rock"] },
-        { name: "Radiohead", tags: ["alternative", "art rock", "90s"] },
-        { name: "Oasis", tags: ["britpop", "90s", "rock"] },
-        { name: "Blur", tags: ["britpop", "90s", "rock"] },
-        { name: "Green Day", tags: ["punk", "90s", "rock"] },
-        { name: "The Smashing Pumpkins", tags: ["alternative", "90s", "rock"] },
-        { name: "Beastie Boys", tags: ["hip-hop", "90s", "alternative"] },
-        { name: "A Tribe Called Quest", tags: ["hip-hop", "90s", "jazz"] },
-        { name: "Outkast", tags: ["hip-hop", "90s", "southern"] },
-        { name: "Lauryn Hill", tags: ["hip-hop", "soul", "90s"] },
-        { name: "Tupac Shakur", tags: ["hip-hop", "90s", "classic"] },
-        { name: "The Notorious B.I.G.", tags: ["hip-hop", "90s", "classic"] },
-        { name: "Dr. Dre", tags: ["hip-hop", "90s", "west coast"] },
-        { name: "Wu-Tang Clan", tags: ["hip-hop", "90s", "raw"] },
-        { name: "Missy Elliott", tags: ["hip-hop", "90s", "innovative"] },
-        { name: "Beyonce", tags: ["pop", "r&b", "2000s"] },
-        { name: "Rihanna", tags: ["pop", "r&b", "2000s"] },
-        { name: "Kanye West", tags: ["hip-hop", "2000s", "producer"] },
-        { name: "Jay-Z", tags: ["hip-hop", "2000s", "classic"] },
-        { name: "Eminem", tags: ["hip-hop", "2000s", "rap"] },
-        { name: "Linkin Park", tags: ["rock", "2000s", "nu metal"] },
-        { name: "The Strokes", tags: ["indie rock", "2000s", "nyc"] },
-        { name: "The White Stripes", tags: ["garage", "2000s", "rock"] },
-        { name: "The Black Keys", tags: ["garage", "2000s", "blues"] },
-        { name: "The Killers", tags: ["indie", "2000s", "arena"] },
-        { name: "Coldplay", tags: ["rock", "2000s", "arena"] },
-        { name: "The Shins", tags: ["indie", "2000s", "jangly"] },
-        { name: "Arcade Fire", tags: ["indie", "2000s", "anthemic"] },
-        { name: "LCD Soundsystem", tags: ["dance", "2000s", "indie"] },
-        { name: "Daft Punk", tags: ["electronic", "house", "2000s"] },
-        { name: "Kendrick Lamar", tags: ["hip-hop", "2010s", "lyrical"] },
-        { name: "Drake", tags: ["hip-hop", "2010s", "pop"] },
-        { name: "Frank Ocean", tags: ["r&b", "2010s", "alt"] },
-        { name: "The Weeknd", tags: ["pop", "r&b", "2010s"] },
-        { name: "Taylor Swift", tags: ["pop", "2010s", "songwriter"] },
-        { name: "Adele", tags: ["pop", "2010s", "vocals"] },
-        { name: "Billie Eilish", tags: ["pop", "2010s", "alt"] },
-        { name: "Lorde", tags: ["pop", "2010s", "alt"] },
-        { name: "Tame Impala", tags: ["psychedelic", "2010s", "indie"] },
-        { name: "Arctic Monkeys", tags: ["indie rock", "2000s", "brit"] },
-        { name: "Vampire Weekend", tags: ["indie", "2000s", "baroque"] },
-        { name: "The National", tags: ["indie", "2000s", "melancholic"] },
-        { name: "Phoebe Bridgers", tags: ["indie", "2010s", "folk"] },
-        { name: "Mitski", tags: ["indie", "2010s", "art pop"] },
-        { name: "SZA", tags: ["r&b", "2010s", "alt"] },
-        { name: "Bad Bunny", tags: ["latin", "2010s", "reggaeton"] },
-        { name: "Rosalia", tags: ["latin", "2010s", "experimental"] },
-        { name: "BTS", tags: ["k-pop", "2010s", "pop"] },
-        { name: "BLACKPINK", tags: ["k-pop", "2010s", "pop"] },
-        { name: "Shakira", tags: ["latin", "2000s", "pop"] },
-        { name: "Daddy Yankee", tags: ["latin", "2000s", "reggaeton"] },
-        { name: "Bob Marley", tags: ["reggae", "70s", "classic"] },
-        { name: "Fela Kuti", tags: ["afrobeat", "70s", "global"] },
-        { name: "Buena Vista Social Club", tags: ["latin", "classic", "son"] },
-        { name: "Nusrat Fateh Ali Khan", tags: ["qawwali", "global", "classic"] },
-        { name: "Ali Farka Toure", tags: ["world", "blues", "mali"] },
-        { name: "Youssou N'Dour", tags: ["world", "senegal", "pop"] },
-        { name: "Anoushka Shankar", tags: ["world", "classical", "india"] },
-        { name: "Yo-Yo Ma", tags: ["classical", "cello", "modern"] },
-        { name: "Beethoven", tags: ["classical", "composer", "romantic"] },
-        { name: "Bach", tags: ["classical", "composer", "baroque"] },
-        { name: "Mozart", tags: ["classical", "composer", "classical"] },
-        { name: "Miles Davis", tags: ["jazz", "classic", "trumpet"] },
-        { name: "John Coltrane", tags: ["jazz", "classic", "sax"] },
-        { name: "Billie Holiday", tags: ["jazz", "classic", "vocals"] },
-        { name: "Ella Fitzgerald", tags: ["jazz", "classic", "vocals"] },
-        { name: "Nina Simone", tags: ["jazz", "soul", "classic"] },
-        { name: "Ray Charles", tags: ["soul", "classic", "r&b"] },
-        { name: "Thelonious Monk", tags: ["jazz", "classic", "piano"] },
-        { name: "Duke Ellington", tags: ["jazz", "classic", "big band"] },
-        { name: "Norah Jones", tags: ["jazz", "2000s", "smooth"] },
-        { name: "Herbie Hancock", tags: ["jazz", "fusion", "classic"] },
-        { name: "Tool", tags: ["metal", "progressive", "90s"] },
-        { name: "Slipknot", tags: ["metal", "2000s", "heavy"] },
-        { name: "Rage Against the Machine", tags: ["rock", "90s", "rap"] },
-        { name: "System of a Down", tags: ["metal", "2000s", "alt"] },
-        { name: "Evanescence", tags: ["rock", "2000s", "goth"] },
-        { name: "Paramore", tags: ["rock", "2000s", "pop punk"] },
-        { name: "My Chemical Romance", tags: ["rock", "2000s", "emo"] },
-        { name: "Fall Out Boy", tags: ["rock", "2000s", "pop punk"] },
-        { name: "The Roots", tags: ["hip-hop", "live", "classic"] },
-        { name: "Run-D.M.C.", tags: ["hip-hop", "80s", "classic"] },
-        { name: "Public Enemy", tags: ["hip-hop", "80s", "political"] },
-        { name: "Nas", tags: ["hip-hop", "90s", "classic"] },
-        { name: "Kacey Musgraves", tags: ["country", "2010s", "pop"] },
-        { name: "Johnny Cash", tags: ["country", "classic", "outlaw"] },
-        { name: "Dolly Parton", tags: ["country", "classic", "pop"] },
-        { name: "Willie Nelson", tags: ["country", "classic", "outlaw"] },
-        { name: "Sturgill Simpson", tags: ["country", "2010s", "alt"] },
-        { name: "Chris Stapleton", tags: ["country", "2010s", "soul"] },
-        { name: "The Chicks", tags: ["country", "2000s", "pop"] },
-        { name: "Garth Brooks", tags: ["country", "90s", "arena"] },
-        { name: "Sufjan Stevens", tags: ["indie", "2000s", "folk"] },
-        { name: "Bon Iver", tags: ["indie", "2000s", "folk"] },
-        { name: "Beach House", tags: ["dream pop", "2000s", "indie"] },
-        { name: "The xx", tags: ["indie", "2000s", "minimal"] },
-        { name: "CHVRCHES", tags: ["synth", "2010s", "pop"] },
-        { name: "Sigur Ros", tags: ["post-rock", "2000s", "ambient"] },
-        { name: "Explosions in the Sky", tags: ["post-rock", "2000s", "instrumental"] },
-        { name: "Godspeed You! Black Emperor", tags: ["post-rock", "90s", "experimental"] },
-        { name: "Khruangbin", tags: ["psychedelic", "2010s", "funk"] },
-        { name: "Parcels", tags: ["funk", "2010s", "disco"] },
-        { name: "Cigarettes After Sex", tags: ["dream pop", "2010s", "slowcore"] },
-        { name: "Fontaines D.C.", tags: ["post-punk", "2010s", "irish"] },
-        { name: "Idles", tags: ["post-punk", "2010s", "punk"] },
-        { name: "Black Country, New Road", tags: ["art rock", "2020s", "post-rock"] },
-        { name: "The Smile", tags: ["art rock", "2020s", "indie"] },
-        { name: "Olivia Rodrigo", tags: ["pop", "2020s", "rock"] },
-        { name: "Doja Cat", tags: ["pop", "2020s", "hip-hop"] },
-        { name: "Tyler, The Creator", tags: ["hip-hop", "2010s", "experimental"] },
-        { name: "Rina Sawayama", tags: ["pop", "2020s", "alt"] },
-        { name: "Erykah Badu", tags: ["r&b", "90s", "neo-soul"] },
-        { name: "D'Angelo", tags: ["r&b", "90s", "neo-soul"] },
-        { name: "Bruno Mars", tags: ["pop", "2010s", "funk"] },
-        { name: "Silk Sonic", tags: ["r&b", "2020s", "funk"] }
+        { name: "The Beatles", song: "Here Comes the Sun", tags: ["rock", "60s", "classic"] },
+        { name: "The Rolling Stones", song: "Gimme Shelter", tags: ["rock", "60s", "classic"] },
+        { name: "The Beach Boys", song: "God Only Knows", tags: ["pop", "60s", "harmonies"] },
+        { name: "Bob Dylan", song: "Like a Rolling Stone", tags: ["folk", "60s", "songwriter"] },
+        { name: "Jimi Hendrix", song: "Purple Haze", tags: ["rock", "psychedelic", "guitar"] },
+        { name: "Aretha Franklin", song: "Respect", tags: ["soul", "classic", "vocals"] },
+        { name: "Stevie Wonder", song: "Superstition", tags: ["soul", "pop", "classic"] },
+        { name: "Marvin Gaye", song: "What's Going On", tags: ["soul", "classic", "smooth"] },
+        { name: "The Supremes", song: "You Can't Hurry Love", tags: ["motown", "60s", "pop"] },
+        { name: "Led Zeppelin", song: "Stairway to Heaven", tags: ["rock", "70s", "heavy"] },
+        { name: "Pink Floyd", song: "Time", tags: ["rock", "progressive", "70s"] },
+        { name: "Fleetwood Mac", song: "Dreams", tags: ["rock", "70s", "pop"] },
+        { name: "Queen", song: "Bohemian Rhapsody", tags: ["rock", "arena", "classic"] },
+        { name: "David Bowie", song: "Heroes", tags: ["rock", "art", "70s"] },
+        { name: "The Clash", song: "London Calling", tags: ["punk", "70s", "rock"] },
+        { name: "Sex Pistols", song: "Anarchy in the U.K.", tags: ["punk", "70s", "raw"] },
+        { name: "Talking Heads", song: "Once in a Lifetime", tags: ["art rock", "new wave", "funk"] },
+        { name: "Joy Division", song: "Love Will Tear Us Apart", tags: ["post-punk", "dark", "classic"] },
+        { name: "The Cure", song: "Just Like Heaven", tags: ["goth", "post-punk", "new wave"] },
+        { name: "Depeche Mode", song: "Enjoy the Silence", tags: ["synth", "new wave", "dark"] },
+        { name: "Prince", song: "Purple Rain", tags: ["pop", "funk", "80s"] },
+        { name: "Michael Jackson", song: "Billie Jean", tags: ["pop", "80s", "dance"] },
+        { name: "Madonna", song: "Like a Prayer", tags: ["pop", "80s", "dance"] },
+        { name: "Whitney Houston", song: "I Wanna Dance with Somebody", tags: ["pop", "80s", "vocals"] },
+        { name: "U2", song: "With or Without You", tags: ["rock", "80s", "arena"] },
+        { name: "The Smiths", song: "There Is a Light That Never Goes Out", tags: ["indie", "jangle", "80s"] },
+        { name: "New Order", song: "Blue Monday", tags: ["synth", "dance", "80s"] },
+        { name: "R.E.M.", song: "Losing My Religion", tags: ["rock", "80s", "alternative"] },
+        { name: "The Police", song: "Every Breath You Take", tags: ["rock", "new wave", "80s"] },
+        { name: "Guns N' Roses", song: "Sweet Child o' Mine", tags: ["rock", "hard", "80s"] },
+        { name: "Metallica", song: "Enter Sandman", tags: ["metal", "80s", "thrash"] },
+        { name: "Nirvana", song: "Smells Like Teen Spirit", tags: ["grunge", "90s", "rock"] },
+        { name: "Pearl Jam", song: "Alive", tags: ["grunge", "90s", "rock"] },
+        { name: "Radiohead", song: "Paranoid Android", tags: ["alternative", "art rock", "90s"] },
+        { name: "Oasis", song: "Wonderwall", tags: ["britpop", "90s", "rock"] },
+        { name: "Blur", song: "Song 2", tags: ["britpop", "90s", "rock"] },
+        { name: "Green Day", song: "Basket Case", tags: ["punk", "90s", "rock"] },
+        { name: "The Smashing Pumpkins", song: "1979", tags: ["alternative", "90s", "rock"] },
+        { name: "Beastie Boys", song: "Sabotage", tags: ["hip-hop", "90s", "alternative"] },
+        { name: "A Tribe Called Quest", song: "Can I Kick It?", tags: ["hip-hop", "90s", "jazz"] },
+        { name: "Outkast", song: "Ms. Jackson", tags: ["hip-hop", "90s", "southern"] },
+        { name: "Lauryn Hill", song: "Doo Wop (That Thing)", tags: ["hip-hop", "soul", "90s"] },
+        { name: "Tupac Shakur", song: "California Love", tags: ["hip-hop", "90s", "classic"] },
+        { name: "The Notorious B.I.G.", song: "Juicy", tags: ["hip-hop", "90s", "classic"] },
+        { name: "Dr. Dre", song: "Still D.R.E.", tags: ["hip-hop", "90s", "west coast"] },
+        { name: "Wu-Tang Clan", song: "C.R.E.A.M.", tags: ["hip-hop", "90s", "raw"] },
+        { name: "Missy Elliott", song: "Get Ur Freak On", tags: ["hip-hop", "90s", "innovative"] },
+        { name: "Beyonce", song: "Crazy in Love", tags: ["pop", "r&b", "2000s"] },
+        { name: "Rihanna", song: "Umbrella", tags: ["pop", "r&b", "2000s"] },
+        { name: "Kanye West", song: "Stronger", tags: ["hip-hop", "2000s", "producer"] },
+        { name: "Jay-Z", song: "Empire State of Mind", tags: ["hip-hop", "2000s", "classic"] },
+        { name: "Eminem", song: "Lose Yourself", tags: ["hip-hop", "2000s", "rap"] },
+        { name: "Linkin Park", song: "In the End", tags: ["rock", "2000s", "nu metal"] },
+        { name: "The Strokes", song: "Last Nite", tags: ["indie rock", "2000s", "nyc"] },
+        { name: "The White Stripes", song: "Seven Nation Army", tags: ["garage", "2000s", "rock"] },
+        { name: "The Black Keys", song: "Lonely Boy", tags: ["garage", "2000s", "blues"] },
+        { name: "The Killers", song: "Mr. Brightside", tags: ["indie", "2000s", "arena"] },
+        { name: "Coldplay", song: "Fix You", tags: ["rock", "2000s", "arena"] },
+        { name: "The Shins", song: "New Slang", tags: ["indie", "2000s", "jangly"] },
+        { name: "Arcade Fire", song: "Wake Up", tags: ["indie", "2000s", "anthemic"] },
+        { name: "LCD Soundsystem", song: "All My Friends", tags: ["dance", "2000s", "indie"] },
+        { name: "Daft Punk", song: "One More Time", tags: ["electronic", "house", "2000s"] },
+        { name: "Kendrick Lamar", song: "Alright", tags: ["hip-hop", "2010s", "lyrical"] },
+        { name: "Drake", song: "God's Plan", tags: ["hip-hop", "2010s", "pop"] },
+        { name: "Frank Ocean", song: "Thinkin Bout You", tags: ["r&b", "2010s", "alt"] },
+        { name: "The Weeknd", song: "Blinding Lights", tags: ["pop", "r&b", "2010s"] },
+        { name: "Taylor Swift", song: "Blank Space", tags: ["pop", "2010s", "songwriter"] },
+        { name: "Adele", song: "Rolling in the Deep", tags: ["pop", "2010s", "vocals"] },
+        { name: "Billie Eilish", song: "bad guy", tags: ["pop", "2010s", "alt"] },
+        { name: "Lorde", song: "Royals", tags: ["pop", "2010s", "alt"] },
+        { name: "Tame Impala", song: "The Less I Know the Better", tags: ["psychedelic", "2010s", "indie"] },
+        { name: "Arctic Monkeys", song: "Do I Wanna Know?", tags: ["indie rock", "2000s", "brit"] },
+        { name: "Vampire Weekend", song: "A-Punk", tags: ["indie", "2000s", "baroque"] },
+        { name: "The National", song: "Bloodbuzz Ohio", tags: ["indie", "2000s", "melancholic"] },
+        { name: "Phoebe Bridgers", song: "Kyoto", tags: ["indie", "2010s", "folk"] },
+        { name: "Mitski", song: "Nobody", tags: ["indie", "2010s", "art pop"] },
+        { name: "SZA", song: "Good Days", tags: ["r&b", "2010s", "alt"] },
+        { name: "Bad Bunny", song: "Tití Me Preguntó", tags: ["latin", "2010s", "reggaeton"] },
+        { name: "Rosalia", song: "MALAMENTE", tags: ["latin", "2010s", "experimental"] },
+        { name: "BTS", song: "Dynamite", tags: ["k-pop", "2010s", "pop"] },
+        { name: "BLACKPINK", song: "How You Like That", tags: ["k-pop", "2010s", "pop"] },
+        { name: "Shakira", song: "Hips Don't Lie", tags: ["latin", "2000s", "pop"] },
+        { name: "Daddy Yankee", song: "Gasolina", tags: ["latin", "2000s", "reggaeton"] },
+        { name: "Bob Marley", song: "Three Little Birds", tags: ["reggae", "70s", "classic"] },
+        { name: "Fela Kuti", song: "Water No Get Enemy", tags: ["afrobeat", "70s", "global"] },
+        { name: "Buena Vista Social Club", song: "Chan Chan", tags: ["latin", "classic", "son"] },
+        { name: "Nusrat Fateh Ali Khan", song: "Allah Hoo", tags: ["qawwali", "global", "classic"] },
+        { name: "Ali Farka Toure", song: "Ai Du", tags: ["world", "blues", "mali"] },
+        { name: "Youssou N'Dour", song: "7 Seconds", tags: ["world", "senegal", "pop"] },
+        { name: "Anoushka Shankar", song: "Rise", tags: ["world", "classical", "india"] },
+        { name: "Yo-Yo Ma", song: "Cello Suite No. 1", tags: ["classical", "cello", "modern"] },
+        { name: "Beethoven", song: "Symphony No. 5", tags: ["classical", "composer", "romantic"] },
+        { name: "Bach", song: "Toccata and Fugue in D minor", tags: ["classical", "composer", "baroque"] },
+        { name: "Mozart", song: "Eine kleine Nachtmusik", tags: ["classical", "composer", "classical"] },
+        { name: "Miles Davis", song: "So What", tags: ["jazz", "classic", "trumpet"] },
+        { name: "John Coltrane", song: "My Favorite Things", tags: ["jazz", "classic", "sax"] },
+        { name: "Billie Holiday", song: "Strange Fruit", tags: ["jazz", "classic", "vocals"] },
+        { name: "Ella Fitzgerald", song: "Summertime", tags: ["jazz", "classic", "vocals"] },
+        { name: "Nina Simone", song: "Feeling Good", tags: ["jazz", "soul", "classic"] },
+        { name: "Ray Charles", song: "Georgia on My Mind", tags: ["soul", "classic", "r&b"] },
+        { name: "Thelonious Monk", song: "Round Midnight", tags: ["jazz", "classic", "piano"] },
+        { name: "Duke Ellington", song: "Take the A Train", tags: ["jazz", "classic", "big band"] },
+        { name: "Norah Jones", song: "Don't Know Why", tags: ["jazz", "2000s", "smooth"] },
+        { name: "Herbie Hancock", song: "Cantaloupe Island", tags: ["jazz", "fusion", "classic"] },
+        { name: "Tool", song: "Schism", tags: ["metal", "progressive", "90s"] },
+        { name: "Slipknot", song: "Duality", tags: ["metal", "2000s", "heavy"] },
+        { name: "Rage Against the Machine", song: "Killing in the Name", tags: ["rock", "90s", "rap"] },
+        { name: "System of a Down", song: "Chop Suey!", tags: ["metal", "2000s", "alt"] },
+        { name: "Evanescence", song: "Bring Me to Life", tags: ["rock", "2000s", "goth"] },
+        { name: "Paramore", song: "Misery Business", tags: ["rock", "2000s", "pop punk"] },
+        { name: "My Chemical Romance", song: "Welcome to the Black Parade", tags: ["rock", "2000s", "emo"] },
+        { name: "Fall Out Boy", song: "Sugar, We're Goin Down", tags: ["rock", "2000s", "pop punk"] },
+        { name: "The Roots", song: "You Got Me", tags: ["hip-hop", "live", "classic"] },
+        { name: "Run-D.M.C.", song: "It's Tricky", tags: ["hip-hop", "80s", "classic"] },
+        { name: "Public Enemy", song: "Fight the Power", tags: ["hip-hop", "80s", "political"] },
+        { name: "Nas", song: "N.Y. State of Mind", tags: ["hip-hop", "90s", "classic"] },
+        { name: "Kacey Musgraves", song: "Slow Burn", tags: ["country", "2010s", "pop"] },
+        { name: "Johnny Cash", song: "Ring of Fire", tags: ["country", "classic", "outlaw"] },
+        { name: "Dolly Parton", song: "Jolene", tags: ["country", "classic", "pop"] },
+        { name: "Willie Nelson", song: "On the Road Again", tags: ["country", "classic", "outlaw"] },
+        { name: "Sturgill Simpson", song: "Turtles All the Way Down", tags: ["country", "2010s", "alt"] },
+        { name: "Chris Stapleton", song: "Tennessee Whiskey", tags: ["country", "2010s", "soul"] },
+        { name: "The Chicks", song: "Wide Open Spaces", tags: ["country", "2000s", "pop"] },
+        { name: "Garth Brooks", song: "Friends in Low Places", tags: ["country", "90s", "arena"] },
+        { name: "Sufjan Stevens", song: "Chicago", tags: ["indie", "2000s", "folk"] },
+        { name: "Bon Iver", song: "Skinny Love", tags: ["indie", "2000s", "folk"] },
+        { name: "Beach House", song: "Space Song", tags: ["dream pop", "2000s", "indie"] },
+        { name: "The xx", song: "Intro", tags: ["indie", "2000s", "minimal"] },
+        { name: "CHVRCHES", song: "The Mother We Share", tags: ["synth", "2010s", "pop"] },
+        { name: "Sigur Ros", song: "Hoppipolla", tags: ["post-rock", "2000s", "ambient"] },
+        { name: "Explosions in the Sky", song: "Your Hand in Mine", tags: ["post-rock", "2000s", "instrumental"] },
+        { name: "Godspeed You! Black Emperor", song: "Storm", tags: ["post-rock", "90s", "experimental"] },
+        { name: "Khruangbin", song: "Texas Sun", tags: ["psychedelic", "2010s", "funk"] },
+        { name: "Parcels", song: "Overnight", tags: ["funk", "2010s", "disco"] },
+        { name: "Cigarettes After Sex", song: "Apocalypse", tags: ["dream pop", "2010s", "slowcore"] },
+        { name: "Fontaines D.C.", song: "Boys in the Better Land", tags: ["post-punk", "2010s", "irish"] },
+        { name: "Idles", song: "Danny Nedelko", tags: ["post-punk", "2010s", "punk"] },
+        { name: "Black Country, New Road", song: "The Place Where He Inserted the Blade", tags: ["art rock", "2020s", "post-rock"] },
+        { name: "The Smile", song: "You Will Never Work in Television Again", tags: ["art rock", "2020s", "indie"] },
+        { name: "Olivia Rodrigo", song: "drivers license", tags: ["pop", "2020s", "rock"] },
+        { name: "Doja Cat", song: "Say So", tags: ["pop", "2020s", "hip-hop"] },
+        { name: "Tyler, The Creator", song: "EARFQUAKE", tags: ["hip-hop", "2010s", "experimental"] },
+        { name: "Rina Sawayama", song: "XS", tags: ["pop", "2020s", "alt"] },
+        { name: "Erykah Badu", song: "On & On", tags: ["r&b", "90s", "neo-soul"] },
+        { name: "D'Angelo", song: "Untitled (How Does It Feel)", tags: ["r&b", "90s", "neo-soul"] },
+        { name: "Bruno Mars", song: "24K Magic", tags: ["pop", "2010s", "funk"] },
+        { name: "Silk Sonic", song: "Leave the Door Open", tags: ["r&b", "2020s", "funk"] }
       ];
+];
 
       const RECO_THRESHOLD = 50;
       const bands = MASTER_BANDS;
@@ -394,7 +406,8 @@
         ratings: new Map(),
         tagScores: new Map(),
         neverHeard: new Set(),
-        ratedCount: 0
+        ratedCount: 0,
+        history: []
       };
 
       const bandName = document.getElementById("bandName");
@@ -404,6 +417,7 @@
       const finishBtn = document.getElementById("finishBtn");
       const resetBtn = document.getElementById("resetBtn");
       const scoreBox = document.getElementById("scoreBox");
+      const backBtn = document.getElementById("backBtn");
 
       function shuffle(list) {
         const arr = [...list];
@@ -420,10 +434,12 @@
         state.ratings.clear();
         state.tagScores.clear();
         state.neverHeard.clear();
+        state.history = [];
         state.ratedCount = 0;
         results.classList.remove("active");
         results.innerHTML = "";
         finishBtn.disabled = true;
+        backBtn.disabled = true;
         nextBand();
         updateStatus();
       }
@@ -442,9 +458,11 @@
         const pct = Math.min(100, Math.round((state.ratedCount / RECO_THRESHOLD) * 100));
         meterFill.style.width = `${pct}%`;
         const ready = state.ratedCount >= RECO_THRESHOLD;
-        scoreBox.textContent = `${ready ? "Recommendations ready" : `Rate ${RECO_THRESHOLD - state.ratedCount} more for recos`} • Never heard: ${state.neverHeard.size}`;
+        scoreBox.textContent = `${ready ? "Recommendations ready" : `Rate ${RECO_THRESHOLD - state.ratedCount} more for recos`} • Not familiar: ${state.neverHeard.size}`;
         finishBtn.disabled = !ready;
-        finishBtn.textContent = ready ? "Show Me My Recommendations" : `Rate ${RECO_THRESHOLD - state.ratedCount} more`;
+        finishBtn.classList.toggle("hidden", !ready);
+        finishBtn.textContent = "Show Me My Recommendations";
+        backBtn.disabled = state.history.length === 0;
       }
 
       function applyRating(band, rating) {
@@ -452,6 +470,19 @@
         for (const tag of band.tags) {
           const current = state.tagScores.get(tag) ?? 0;
           state.tagScores.set(tag, current + weight);
+        }
+      }
+
+      function removeRating(band, rating) {
+        const weight = ratingWeights[rating];
+        for (const tag of band.tags) {
+          const current = state.tagScores.get(tag) ?? 0;
+          const next = current - weight;
+          if (Math.abs(next) < 1e-6) {
+            state.tagScores.delete(tag);
+          } else {
+            state.tagScores.set(tag, next);
+          }
         }
       }
 
@@ -465,10 +496,14 @@
           state.neverHeard.delete(band.name);
         }
         applyRating(band, rating);
+        state.history.push({ orderIndex: state.index, bandName: band.name, rating });
         state.index += 1;
         state.ratedCount += 1;
         updateStatus();
         nextBand();
+        if (results.classList.contains("active")) {
+          showRecommendations();
+        }
       }
 
       function scoreBand(band) {
@@ -513,8 +548,33 @@
           item.className = "rec";
           const tagLine = band.tags.join(" • ");
           const scoreText = hasRatings ? `Match score: ${band.score.toFixed(2)}` : "";
-          item.innerHTML = `<h4>${band.name}</h4><p>${tagLine}${scoreText ? ` — ${scoreText}` : ""}</p>`;
+          const song = band.song ?? "Top track";
+          const query = encodeURIComponent(`${band.name} ${song}`);
+          const apple = `https://music.apple.com/us/search?term=${query}`;
+          const spotify = `https://open.spotify.com/search/${query}`;
+          item.innerHTML = `<h4>${band.name}</h4><p>${tagLine}${scoreText ? ` — ${scoreText}` : ""}</p><p>Try: <strong>${song}</strong> · <a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Music</a> · <a href="${spotify}" target="_blank" rel="noopener noreferrer">Spotify</a></p>`;
           results.appendChild(item);
+        }
+      }
+
+      function handleBack() {
+        if (state.history.length === 0) return;
+        const last = state.history.pop();
+        const bandIndex = bands.findIndex(b => b.name === last.bandName);
+        if (bandIndex !== -1) {
+          const band = bands[bandIndex];
+          removeRating(band, last.rating);
+          state.ratings.delete(band.name);
+          if (last.rating === "never") {
+            state.neverHeard.delete(band.name);
+          }
+        }
+        state.ratedCount = Math.max(0, state.ratedCount - 1);
+        state.index = last.orderIndex;
+        updateStatus();
+        nextBand();
+        if (results.classList.contains("active")) {
+          showRecommendations();
         }
       }
 
@@ -524,6 +584,7 @@
 
       finishBtn.addEventListener("click", showRecommendations);
       resetBtn.addEventListener("click", init);
+      backBtn.addEventListener("click", handleBack);
 
       init();
     </script>
